@@ -26,12 +26,17 @@ import androidx.core.app.ShareCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleObserver
 import com.example.android.dessertpusher.databinding.ActivityMainBinding
+import timber.log.Timber
+
+const val KEY_REVENUE : String = "revenue"
+const val KEY_DESSERTS_SOLD : String = "dessertsSold"
+const val KEY_DESSERTS_TIMER : String = "dessertTimer"
 
 class MainActivity : AppCompatActivity(), LifecycleObserver {
 
     private var revenue = 0
     private var dessertsSold = 0
-
+    private lateinit var dessertTimer: DessertTimer
     // Contains all the views
     private lateinit var binding: ActivityMainBinding
 
@@ -64,15 +69,22 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Timber.i( "on Create Called")
         // Use Data Binding to get reference to the views
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         binding.dessertButton.setOnClickListener {
             onDessertClicked()
         }
-
+        dessertTimer = DessertTimer(this.lifecycle)
         // Set the TextViews to the right values
+        if(null != savedInstanceState)
+        {
+            revenue = savedInstanceState!!.getInt(KEY_REVENUE)
+            dessertsSold = savedInstanceState!!.getInt(KEY_DESSERTS_SOLD)
+            dessertTimer.secondsCount = savedInstanceState!!.getInt(KEY_DESSERTS_TIMER)
+        }
+
         binding.revenue = revenue
         binding.amountSold = dessertsSold
 
@@ -135,6 +147,17 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         }
     }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(KEY_REVENUE, revenue)
+        outState.putInt(KEY_DESSERTS_SOLD,dessertsSold)
+        outState.putInt(KEY_DESSERTS_TIMER, dessertTimer.secondsCount)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return super.onCreateOptionsMenu(menu)
@@ -145,5 +168,35 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
             R.id.shareMenuButton -> onShare()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Timber.i("on Start Called -- Timber")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Timber.i("on Resume Called -- Timber")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Timber.i("on Stop Called -- Timber")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Timber.i("on Destroy Called -- Timber")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Timber.i("on Pause Called -- Timber")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Timber.i("on ReStart Called -- Timber")
     }
 }
